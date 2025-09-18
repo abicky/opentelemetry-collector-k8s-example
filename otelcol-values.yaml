@@ -1,0 +1,47 @@
+# See https://github.com/open-telemetry/opentelemetry-helm-charts/tree/opentelemetry-target-allocator-0.126.5/charts/opentelemetry-collector
+mode: daemonset
+
+image:
+  repository: otel/opentelemetry-collector-k8s
+
+presets:
+  # Enables the k8sattributesprocessor and adds it to the traces, metrics, and logs pipelines
+  kubernetesAttributes:
+    enabled: true
+    extractAllPodAnnotations: true
+  # Enables the filelogreceiver and adds it to the logs pipelines
+  logsCollection:
+    enabled: true
+
+service:
+  enabled: true
+
+config:
+  exporters:
+    debug:
+      verbosity: detailed
+  # Disable jaeger and zipkin
+  receivers:
+    jaeger: null
+    zipkin: null
+  service:
+    pipelines:
+      traces:
+        receivers:
+        - otlp
+ports:
+  # Disable jaeger and zipkin
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+  # Support delve
+  dlv:
+    enabled: true
+    containerPort: 2345
+    servicePort: 2345
+    protocol: TCP
