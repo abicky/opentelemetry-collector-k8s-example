@@ -23,8 +23,8 @@ Using this service is essential. Without it, the [Kubernetes attributes processo
 ### Build and load image
 
 ```sh
-docker build . -t example
-minikube image load example
+docker build hello-otel -t hello-otel
+minikube image load hello-otel:latest
 ```
 
 ### Run pod
@@ -32,7 +32,7 @@ minikube image load example
 To ensure that almost the same attributes are assigned to both stdout logs and OTLP-exported logs, configure them using annotations and the `OTEL_RESOURCE_ATTRIBUTES` environment variables:
 
 ```sh
-kubectl run example-$(date '+%s') --rm --restart=Never --image-pull-policy=Never -i --image=example \
+kubectl run hello-otel-$(date '+%s') --rm --restart=Never --image-pull-policy=Never -i --image=hello-otel \
   --annotations="resource.opentelemetry.io/service.name=hello" \
   --annotations="resource.opentelemetry.io/service.version=0.0.1" \
   --env=OTEL_RESOURCE_ATTRIBUTES="service.name=hello,service.version=0.0.1" \
@@ -56,7 +56,7 @@ Resource attributes:
      -> telemetry.sdk.version: Str(1.38.0)
      -> k8s.pod.ip: Str(10.244.0.28)
      -> k8s.node.name: Str(minikube)
-     -> k8s.pod.name: Str(example-1758212225)
+     -> k8s.pod.name: Str(hello-otel-1758212225)
      -> k8s.namespace.name: Str(default)
      -> k8s.pod.start_time: Str(2025-09-18T16:17:07Z)
      -> k8s.pod.uid: Str(37bedbd3-d248-4bf0-9247-ba7f8c40e804)
@@ -103,7 +103,7 @@ Resource attributes:
      -> telemetry.sdk.version: Str(1.38.0)
      -> k8s.pod.ip: Str(10.244.0.28)
      -> k8s.node.name: Str(minikube)
-     -> k8s.pod.name: Str(example-1758212225)
+     -> k8s.pod.name: Str(hello-otel-1758212225)
      -> k8s.namespace.name: Str(default)
      -> k8s.pod.start_time: Str(2025-09-18T16:17:07Z)
      -> k8s.pod.uid: Str(37bedbd3-d248-4bf0-9247-ba7f8c40e804)
@@ -142,7 +142,7 @@ Resource attributes:
      -> telemetry.sdk.version: Str(1.38.0)
      -> k8s.pod.ip: Str(10.244.0.28)
      -> k8s.node.name: Str(minikube)
-     -> k8s.pod.name: Str(example-1758212225)
+     -> k8s.pod.name: Str(hello-otel-1758212225)
      -> k8s.namespace.name: Str(default)
      -> k8s.pod.start_time: Str(2025-09-18T16:17:07Z)
      -> k8s.pod.uid: Str(37bedbd3-d248-4bf0-9247-ba7f8c40e804)
@@ -175,9 +175,9 @@ Resource SchemaURL:
 Resource attributes:
      -> k8s.container.restart_count: Str(0)
      -> k8s.pod.uid: Str(37bedbd3-d248-4bf0-9247-ba7f8c40e804)
-     -> k8s.container.name: Str(example-1758212225)
+     -> k8s.container.name: Str(hello-otel-1758212225)
      -> k8s.namespace.name: Str(default)
-     -> k8s.pod.name: Str(example-1758212225)
+     -> k8s.pod.name: Str(hello-otel-1758212225)
      -> k8s.pod.start_time: Str(2025-09-18T16:17:07Z)
      -> k8s.node.name: Str(minikube)
      -> service.name: Str(hello)
@@ -194,7 +194,7 @@ Body: Str([INFO] Hello World!]
 )
 Attributes:
      -> log.iostream: Str(stdout)
-     -> log.file.path: Str(/var/log/pods/default_example-1758212225_37bedbd3-d248-4bf0-9247-ba7f8c40e804/example-1758212225/0.log)
+     -> log.file.path: Str(/var/log/pods/default_hello-otel-1758212225_37bedbd3-d248-4bf0-9247-ba7f8c40e804/hello-otel-1758212225/0.log)
 Trace ID:
 Span ID:
 Flags: 0
@@ -210,15 +210,15 @@ You might consider exporting directly to the node IP as follows:
 
 
 ```sh
-kubectl run example-$(date '+%s') --rm --restart=Never -i --image=example \
+kubectl run hello-otel-$(date '+%s') --rm --restart=Never -i --image=hello-otel \
   --annotations="resource.opentelemetry.io/service.name=hello" \
   --annotations="resource.opentelemetry.io/service.version=0.0.1" \
   --overrides='{
   "spec": {
     "containers": [
       {
-        "name": "example",
-        "image": "example",
+        "name": "hello-otel",
+        "image": "hello-otel",
         "imagePullPolicy": "Never",
         "env": [
           {
