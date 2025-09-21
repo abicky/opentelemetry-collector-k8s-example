@@ -33,8 +33,8 @@ To ensure that almost the same attributes are assigned to both stdout logs and O
 
 ```sh
 kubectl run example-$(date '+%s') --rm --restart=Never --image-pull-policy=Never -i --image=example \
-  --annotations="service.name=hello" \
-  --annotations="service.version=0.0.1" \
+  --annotations="resource.opentelemetry.io/service.name=hello" \
+  --annotations="resource.opentelemetry.io/service.version=0.0.1" \
   --env=OTEL_RESOURCE_ATTRIBUTES="service.name=hello,service.version=0.0.1" \
   --env=OTEL_EXPORTER_OTLP_ENDPOINT="http://opentelemetry-collector.opentelemetry-collector.svc.cluster.local:4317"
 ```
@@ -211,8 +211,8 @@ You might consider exporting directly to the node IP as follows:
 
 ```sh
 kubectl run example-$(date '+%s') --rm --restart=Never -i --image=example \
-  --annotations="service.name=hello" \
-  --annotations="service.version=0.0.1" \
+  --annotations="resource.opentelemetry.io/service.name=hello" \
+  --annotations="resource.opentelemetry.io/service.version=0.0.1" \
   --overrides='{
   "spec": {
     "containers": [
