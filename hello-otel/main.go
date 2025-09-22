@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"os"
 	"time"
 
 	"go.opentelemetry.io/contrib/bridges/otelslog"
@@ -17,10 +18,11 @@ import (
 const name = "github.com/abicky/opentelemetry-collector-k8s-example"
 
 var (
-	tracer        = otel.Tracer(name)
-	meter         = otel.Meter(name)
-	logger        = otelslog.NewLogger(name)
-	invocationCnt metric.Int64Counter
+	tracer             = otel.Tracer(name)
+	meter              = otel.Meter(name)
+	logger             = otelslog.NewLogger(name)
+	invocationCnt      metric.Int64Counter
+	initialWaitSeconds = 1 * time.Second
 )
 
 func init() {
@@ -30,6 +32,13 @@ func init() {
 		metric.WithUnit("{invocation}"))
 	if err != nil {
 		panic(err)
+	}
+
+	if v := os.Getenv("INITIAL_WAIT_SECONDS"); v != "" {
+		initialWaitSeconds, err = time.ParseDuration(v)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -56,7 +65,7 @@ func run() (err error) {
 
 func main() {
 	// Sleep a little so that the OpenTelemetry Collector can detect a newly created pod
-	time.Sleep(1 * time.Second)
+	time.Sleep(initialWaitSeconds)
 	if err := run(); err != nil {
 		log.Fatalln(err)
 	}
