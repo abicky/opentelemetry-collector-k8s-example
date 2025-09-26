@@ -34,6 +34,14 @@ const (
 	defaultTracesExporter  = "otlp"
 	defaultMetricsExporter = "otlp"
 	defaultLogsExporter    = "otlp"
+
+	// Custom environment variables similar to the OTLP exporter (https://opentelemetry.io/docs/specs/otel/protocol/exporter/)
+	consoleTracesPrettyPrintKey      = "OTEL_EXPORTER_CONSOLE_TRACES_PRETTY_PRINT"
+	consoleLogsPrettyPrintKey        = "OTEL_EXPORTER_CONSOLE_LOGS_PRETTY_PRINT"
+	consoleMetricsPrettyPrintKey     = "OTEL_EXPORTER_CONSOLE_METRICS_PRETTY_PRINT"
+	defaultConsoleTracesPrettyPrint  = "false"
+	defaultConsoleLogsPrettyPrint    = "false"
+	defaultConsoleMetricsPrettyPrint = "false"
 )
 
 // setupOTelSDK bootstraps the OpenTelemetry pipeline using the environment variables
@@ -126,7 +134,11 @@ func newTracerProvider(ctx context.Context) (*sdktrace.TracerProvider, error) {
 			}
 			opts = append(opts, sdktrace.WithBatcher(exp))
 		case "console":
-			exp, err := stdouttrace.New()
+			var stdoutOpts []stdouttrace.Option
+			if getEnv(consoleTracesPrettyPrintKey, defaultConsoleTracesPrettyPrint) == "true" {
+				stdoutOpts = append(stdoutOpts, stdouttrace.WithPrettyPrint())
+			}
+			exp, err := stdouttrace.New(stdoutOpts...)
 			if err != nil {
 				return nil, err
 			}
@@ -152,7 +164,11 @@ func newMeterProvider(ctx context.Context) (*sdkmetric.MeterProvider, error) {
 			}
 			opts = append(opts, sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exp)))
 		case "console":
-			exp, err := stdoutmetric.New()
+			var stdoutOpts []stdoutmetric.Option
+			if getEnv(consoleMetricsPrettyPrintKey, defaultConsoleMetricsPrettyPrint) == "true" {
+				stdoutOpts = append(stdoutOpts, stdoutmetric.WithPrettyPrint())
+			}
+			exp, err := stdoutmetric.New(stdoutOpts...)
 			if err != nil {
 				return nil, err
 			}
@@ -178,7 +194,11 @@ func newLoggerProvider(ctx context.Context) (*sdklog.LoggerProvider, error) {
 			}
 			opts = append(opts, sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)))
 		case "console":
-			exp, err := stdoutlog.New()
+			var stdoutOpts []stdoutlog.Option
+			if getEnv(consoleLogsPrettyPrintKey, defaultConsoleLogsPrettyPrint) == "true" {
+				stdoutOpts = append(stdoutOpts, stdoutlog.WithPrettyPrint())
+			}
+			exp, err := stdoutlog.New(stdoutOpts...)
 			if err != nil {
 				return nil, err
 			}
