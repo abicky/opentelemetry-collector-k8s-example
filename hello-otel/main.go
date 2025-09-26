@@ -58,7 +58,7 @@ func run() (err error) {
 	invocationCnt.Add(ctx, 1, metric.WithAttributes(attr))
 	span.SetAttributes(attr)
 	logger.InfoContext(ctx, "Hello World!", slog.String("key1", "value1"))
-	fmt.Println("[INFO] Hello World!]")
+	fmt.Println("[INFO] Hello World!")
 
 	return
 }
